@@ -9,6 +9,7 @@ import (
 type Grid struct {
 	Grid      [][]int
 	Score     int
+	GameOver  bool
 	gameSpeed time.Duration
 	height    int
 	width     int
@@ -42,32 +43,47 @@ func (grid *Grid) Wipe() {
 }
 
 func (grid *Grid) DrawSnake(snakeTail *snake.Snake, direction int) {
-	current := snakeTail
-	for current.Parent != nil {
+	if grid.SnakeIsAlive(snakeTail) {
+		current := snakeTail
+		for current.Parent != nil {
+			grid.Grid[current.Y][current.X] = 1
+			current = current.Parent
+		}
 		grid.Grid[current.Y][current.X] = 1
-		current = current.Parent
-	}
-	grid.Grid[current.Y][current.X] = 1
-	snakeAte := current.X == grid.foodX && current.Y == grid.foodY
-	if snakeAte {
-		grid.HasFood = false
-		snakeTail.Growing = true
-		grid.addFood()
-		grid.addScore()
-		grid.gameSpeed -= time.Millisecond * 10
+		snakeAte := current.X == grid.foodX && current.Y == grid.foodY
+		if snakeAte {
+			grid.HasFood = false
+			snakeTail.Growing = true
+			grid.addFood()
+			grid.addScore()
+			grid.gameSpeed -= time.Millisecond * 10
+		}
+	} else {
+		grid.setGameOver()
 	}
 }
 
-func (grid *Grid) SnakeIsAlive(head *snake.Snake) bool {
+func (grid *Grid) setGameOver() {
+	grid.GameOver = true
+	for row := 0; row < grid.height; row++ {
+		for col := 0; col < grid.width; col++ {
+			grid.Grid[row][col] = -1
+		}
+	}
+}
+
+func (grid *Grid) SnakeIsAlive(tail *snake.Snake) bool {
+	head := tail.FindHead()
+	println(head.X, head.Y)
 	if head.Y < 0 || head.Y >= len(grid.Grid) || head.X < 0 || head.X >= len(grid.Grid[0]) {
 		return false
 	}
-	current := head.Child
-	for current.Child != nil {
+	current := tail
+	for current.Parent != nil {
 		if head.X == current.X && head.Y == current.Y {
 			return false
 		}
-		current = current.Child
+		current = current.Parent
 	}
 	return true
 }

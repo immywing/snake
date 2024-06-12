@@ -1,8 +1,8 @@
 package snake
 
 type Snake struct {
-	Parent  *Snake
-	Child   *Snake
+	Parent *Snake
+	// Child   *Snake
 	X       int
 	Y       int
 	Nodes   int
@@ -44,9 +44,17 @@ func (snake *Snake) grow() *Snake {
 			X: snake.X, Y: snake.Y, Parent: snake,
 			Nodes: snake.Nodes + 1, Tick: snake.Nodes + 1, Growing: false,
 		}
-		snake.Child = &tail
+		// snake.Child = &tail
 		return &tail
 	} else {
 		return snake
 	}
+}
+
+func (snake *Snake) FindHead() *Snake {
+	current := snake
+	for current.Parent != nil {
+		current = current.Parent
+	}
+	return current
 }

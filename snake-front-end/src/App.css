@@ -44,6 +44,17 @@
   width: 20px;
 }
 
+.Grid-GameOver {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: darkred;
+  margin: 1px;
+  height: 20px;
+  width: 20px;
+}
+
 .Snake {
   background-color: grey;
   margin: 1px;

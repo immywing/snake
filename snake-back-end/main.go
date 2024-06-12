@@ -21,15 +21,15 @@ const (
 
 var direction = 0
 
-func newGame() (*snake.Snake, *snake.Snake, game.Grid) {
+func newGame() (*snake.Snake, game.Grid) {
 	//returns head, tail, grid for a game of snake
 	tail := snake.Snake{X: 2, Y: 5, Nodes: 3, Tick: 3, Growing: false}
-	body := snake.Snake{X: 3, Y: 5, Nodes: 3, Tick: 3, Growing: false, Child: &tail}
-	head := snake.Snake{X: 4, Y: 5, Nodes: 3, Tick: 3, Growing: false, Child: &body}
+	body := snake.Snake{X: 3, Y: 5, Nodes: 3, Tick: 3, Growing: false} //, Child: &tail}
+	head := snake.Snake{X: 4, Y: 5, Nodes: 3, Tick: 3, Growing: false} //, Child: &body}
 	tail.Parent = &body
 	body.Parent = &head
 	grid := game.NewGrid(10, 10)
-	return &head, &tail, grid
+	return &tail, grid
 }
 
 func snakeInputSocket(writer http.ResponseWriter, request *http.Request) {
@@ -81,14 +81,13 @@ func snakeGameSocket(writer http.ResponseWriter, request *http.Request) {
 		log.Fatal("failed to upgrade to websocket (request new game endpoint)")
 	}
 	defer conn.Close()
-	head, tail, grid := newGame()
+	tail, grid := newGame()
 	direction = Right
-	for grid.SnakeIsAlive(head) {
+	for !grid.GameOver {
 		grid.Wipe()
 		directionThisCycle := direction
 		tail = tail.Move(directionThisCycle)
 		grid.DrawSnake(tail, directionThisCycle)
-		// println(grid.FoodPos())
 		jsonData, _ := json.Marshal(grid)
 		conn.WriteMessage(1, jsonData)
 	}

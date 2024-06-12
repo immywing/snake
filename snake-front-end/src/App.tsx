@@ -81,7 +81,9 @@ function App() {
         <div className='grid-row' key={rowIndex}>
           {row.map((item, colIndex) => (
             <div key={rowIndex.toString() + colIndex.toString()}>
-              {item === 0 ? 
+              {item === -1 ?
+              (<div className="Grid-GameOver"></div>) : 
+              item === 0 ?
               (<div className="Grid"></div>) : 
               item === 2 ? (<div className="Grid">*</div>) :
               (<div className="Snake"></div>)}
