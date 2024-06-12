@@ -52,6 +52,3 @@ The frontend application will be running on port 3000.
 ### Playing the game
 The game is controllowed with `W`   `A`   `S`   `D` for directional inputs.
 
-### Known issues
-
-1. Directional inputs from a player in quick succession can allow the player to turn the snake back on itself causing a game over state.

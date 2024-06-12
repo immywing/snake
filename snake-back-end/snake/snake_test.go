@@ -7,9 +7,9 @@ import (
 )
 
 func TestMoveUpOnce(t *testing.T) {
-	tail := snake.Snake{X: 0, Y: 0}
-	body := snake.Snake{X: 1, Y: 0}
-	head := snake.Snake{X: 2, Y: 0}
+	tail := snake.Snake{X: 0, Y: 0, Direction: 0}
+	body := snake.Snake{X: 1, Y: 0, Direction: 0}
+	head := snake.Snake{X: 2, Y: 0, Direction: 0}
 	tail.Parent = &body
 	body.Parent = &head
 	tail.Move(0)
@@ -24,9 +24,9 @@ func TestMoveUpOnce(t *testing.T) {
 }
 
 func TestMoveDownOnce(t *testing.T) {
-	tail := snake.Snake{X: 0, Y: 0}
-	body := snake.Snake{X: 1, Y: 0}
-	head := snake.Snake{X: 2, Y: 0}
+	tail := snake.Snake{X: 0, Y: 0, Direction: 1}
+	body := snake.Snake{X: 1, Y: 0, Direction: 1}
+	head := snake.Snake{X: 2, Y: 0, Direction: 1}
 	tail.Parent = &body
 	body.Parent = &head
 	tail.Move(1)
@@ -41,9 +41,9 @@ func TestMoveDownOnce(t *testing.T) {
 }
 
 func TestMoveLeftOnce(t *testing.T) {
-	tail := snake.Snake{X: 2, Y: 0}
-	body := snake.Snake{X: 1, Y: 0}
-	head := snake.Snake{X: 0, Y: 0}
+	tail := snake.Snake{X: 2, Y: 0, Direction: 2}
+	body := snake.Snake{X: 1, Y: 0, Direction: 2}
+	head := snake.Snake{X: 0, Y: 0, Direction: 2}
 	tail.Parent = &body
 	body.Parent = &head
 	tail.Move(2)
@@ -58,9 +58,9 @@ func TestMoveLeftOnce(t *testing.T) {
 }
 
 func TestMoveRightOnce(t *testing.T) {
-	tail := snake.Snake{X: 0, Y: 0}
-	body := snake.Snake{X: 1, Y: 0}
-	head := snake.Snake{X: 2, Y: 0}
+	tail := snake.Snake{X: 0, Y: 0, Direction: 3}
+	body := snake.Snake{X: 1, Y: 0, Direction: 3}
+	head := snake.Snake{X: 2, Y: 0, Direction: 3}
 	tail.Parent = &body
 	body.Parent = &head
 	tail.Move(3)

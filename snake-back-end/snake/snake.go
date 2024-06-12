@@ -1,13 +1,21 @@
 package snake
 
+const (
+	Up = iota
+	Down
+	Left
+	Right
+)
+
 type Snake struct {
 	Parent *Snake
 	// Child   *Snake
-	X       int
-	Y       int
-	Nodes   int
-	Tick    int
-	Growing bool
+	X         int
+	Y         int
+	Nodes     int
+	Tick      int
+	Growing   bool
+	Direction int
 }
 
 func (snake *Snake) Move(direction int) *Snake {
@@ -18,19 +26,41 @@ func (snake *Snake) Move(direction int) *Snake {
 		current.Y = current.Parent.Y
 		current = current.Parent
 	}
-	current.setHeadCoordinate(direction)
+	current.setDirection(direction)
+	current.setHeadCoordinate()
 	return returnPtr
 }
 
-func (snake *Snake) setHeadCoordinate(direction int) {
+func (snake *Snake) setDirection(direction int) {
 	switch direction {
-	case 0:
+	case Up:
+		if snake.Direction != Down {
+			snake.Direction = 0
+		}
+	case Down:
+		if snake.Direction != Up {
+			snake.Direction = 1
+		}
+	case Left:
+		if snake.Direction != Right {
+			snake.Direction = 2
+		}
+	case Right:
+		if snake.Direction != Left {
+			snake.Direction = 3
+		}
+	}
+}
+
+func (snake *Snake) setHeadCoordinate() {
+	switch snake.Direction {
+	case Up:
 		snake.Y--
-	case 1:
+	case Down:
 		snake.Y++
-	case 2:
+	case Left:
 		snake.X--
-	case 3:
+	case Right:
 		snake.X++
 	}
 }
@@ -44,7 +74,6 @@ func (snake *Snake) grow() *Snake {
 			X: snake.X, Y: snake.Y, Parent: snake,
 			Nodes: snake.Nodes + 1, Tick: snake.Nodes + 1, Growing: false,
 		}
-		// snake.Child = &tail
 		return &tail
 	} else {
 		return snake

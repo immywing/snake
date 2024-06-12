@@ -38,24 +38,7 @@ func snakeInputSocket(writer http.ResponseWriter, request *http.Request) {
 		m := string(message)
 		dir, err := strconv.Atoi(m)
 		if err == nil {
-			switch dir {
-			case 0:
-				if snakeGame.Direction != Down {
-					snakeGame.Direction = dir
-				}
-			case 1:
-				if snakeGame.Direction != Up {
-					snakeGame.Direction = dir
-				}
-			case 2:
-				if snakeGame.Direction != Right {
-					snakeGame.Direction = dir
-				}
-			case 3:
-				if snakeGame.Direction != Left {
-					snakeGame.Direction = dir
-				}
-			}
+			snakeGame.Direction = dir
 		}
 	}
 }

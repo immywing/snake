@@ -77,12 +77,6 @@ func (game *Game) StorePreviousState() {
 }
 
 func (game *Game) setGameOver() {
-	for _, i := range game.Grid {
-		for _, j := range i {
-			print(j)
-		}
-		print("\n")
-	}
 	game.GameOver = true
 	game.Grid = game.previousGrid
 	for row := 0; row < game.height; row++ {
@@ -135,6 +129,7 @@ func (game *Game) Play(tail *snake.Snake, conn *websocket.Conn) {
 		game.StorePreviousState()
 		game.Wipe()
 		tail = tail.Move(game.Direction)
+		game.Direction = -1
 		game.DrawSnake(tail)
 		jsonData, _ := json.Marshal(game)
 		conn.WriteMessage(1, jsonData)
@@ -143,9 +138,9 @@ func (game *Game) Play(tail *snake.Snake, conn *websocket.Conn) {
 
 func ComposeGameAndSnake() (*snake.Snake, Game) {
 	//returns tail, grid for a game of snake
-	tail := snake.Snake{X: 2, Y: 5, Nodes: 3, Tick: 3, Growing: false}
-	body := snake.Snake{X: 3, Y: 5, Nodes: 3, Tick: 3, Growing: false}
-	head := snake.Snake{X: 4, Y: 5, Nodes: 3, Tick: 3, Growing: false}
+	tail := snake.Snake{X: 2, Y: 5, Nodes: 3, Tick: 3, Growing: false, Direction: 3}
+	body := snake.Snake{X: 3, Y: 5, Nodes: 3, Tick: 3, Growing: false, Direction: 3}
+	head := snake.Snake{X: 4, Y: 5, Nodes: 3, Tick: 3, Growing: false, Direction: 3}
 	tail.Parent = &body
 	body.Parent = &head
 	gameInstance := NewGame(10, 10)
