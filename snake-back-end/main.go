@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"strconv"
@@ -19,18 +18,8 @@ const (
 	Right
 )
 
-var direction = 0
-
-func newGame() (*snake.Snake, game.Grid) {
-	//returns head, tail, grid for a game of snake
-	tail := snake.Snake{X: 2, Y: 5, Nodes: 3, Tick: 3, Growing: false}
-	body := snake.Snake{X: 3, Y: 5, Nodes: 3, Tick: 3, Growing: false} //, Child: &tail}
-	head := snake.Snake{X: 4, Y: 5, Nodes: 3, Tick: 3, Growing: false} //, Child: &body}
-	tail.Parent = &body
-	body.Parent = &head
-	grid := game.NewGrid(10, 10)
-	return &tail, grid
-}
+var snakeGame game.Game
+var tail *snake.Snake
 
 func snakeInputSocket(writer http.ResponseWriter, request *http.Request) {
 	var upgrader = websocket.Upgrader{}
@@ -49,23 +38,22 @@ func snakeInputSocket(writer http.ResponseWriter, request *http.Request) {
 		m := string(message)
 		dir, err := strconv.Atoi(m)
 		if err == nil {
-			// direction = dir
 			switch dir {
 			case 0:
-				if direction != Down {
-					direction = dir
+				if snakeGame.Direction != Down {
+					snakeGame.Direction = dir
 				}
 			case 1:
-				if direction != Up {
-					direction = dir
+				if snakeGame.Direction != Up {
+					snakeGame.Direction = dir
 				}
 			case 2:
-				if direction != Right {
-					direction = dir
+				if snakeGame.Direction != Right {
+					snakeGame.Direction = dir
 				}
 			case 3:
-				if direction != Left {
-					direction = dir
+				if snakeGame.Direction != Left {
+					snakeGame.Direction = dir
 				}
 			}
 		}
@@ -78,20 +66,11 @@ func snakeGameSocket(writer http.ResponseWriter, request *http.Request) {
 	var err error
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	if conn, err = upgrader.Upgrade(writer, request, nil); err != nil {
-		log.Fatal("failed to upgrade to websocket (request new game endpoint)")
+		log.Fatal("failed to upgrade to websocket")
 	}
 	defer conn.Close()
-	tail, grid := newGame()
-	direction = Right
-	for !grid.GameOver {
-		grid.Wipe()
-		directionThisCycle := direction
-		tail = tail.Move(directionThisCycle)
-		grid.DrawSnake(tail, directionThisCycle)
-		jsonData, _ := json.Marshal(grid)
-		conn.WriteMessage(1, jsonData)
-	}
-	direction = Right
+	tail, snakeGame = game.ComposeGameAndSnake()
+	snakeGame.Play(tail, conn)
 }
 func main() {
 	http.HandleFunc("/snake", snakeGameSocket)

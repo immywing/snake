@@ -66,7 +66,7 @@ function App() {
       console.error("Failed to create WebSocket connection");
     }
   };
-
+  console.log(grid)
   return (
     <div className="App">
       <div className="button-container">

@@ -1,24 +1,29 @@
 package game
 
 import (
+	"encoding/json"
 	"math/rand"
 	"snakeGame/snake"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
-type Grid struct {
-	Grid      [][]int
-	Score     int
-	GameOver  bool
-	gameSpeed time.Duration
-	height    int
-	width     int
-	HasFood   bool
-	foodX     int
-	foodY     int
+type Game struct {
+	Direction    int `json:"-"`
+	Grid         [][]int
+	previousGrid [][]int
+	Score        int
+	GameOver     bool
+	gameSpeed    time.Duration
+	height       int
+	width        int
+	HasFood      bool
+	foodX        int
+	foodY        int
 }
 
-func NewGrid(height int, width int) Grid {
+func NewGame(height int, width int) Game {
 	grid := make([][]int, height)
 	for y := range grid {
 		grid[y] = make([]int, width)
@@ -26,56 +31,72 @@ func NewGrid(height int, width int) Grid {
 			grid[y][x] = 0
 		}
 	}
-	returnGrid := Grid{Grid: grid, Score: 0, gameSpeed: time.Second / 2, height: height, width: width, HasFood: false}
+	returnGrid := Game{Direction: 3, Grid: grid, Score: 0, gameSpeed: time.Second / 2, height: height, width: width, HasFood: false}
 	returnGrid.addFood()
 	return returnGrid
 }
 
-func (grid *Grid) Wipe() {
-	time.Sleep(grid.gameSpeed)
-	for row := 0; row < grid.height; row++ {
-		for col := 0; col < grid.width; col++ {
-			if grid.Grid[row][col] != 2 {
-				grid.Grid[row][col] = 0
+func (game *Game) Wipe() {
+	time.Sleep(game.gameSpeed)
+	for row := 0; row < game.height; row++ {
+		for col := 0; col < game.width; col++ {
+			if game.Grid[row][col] != 2 {
+				game.Grid[row][col] = 0
 			}
 		}
 	}
 }
 
-func (grid *Grid) DrawSnake(snakeTail *snake.Snake, direction int) {
-	if grid.SnakeIsAlive(snakeTail) {
+func (game *Game) DrawSnake(snakeTail *snake.Snake) {
+	if game.SnakeIsAlive(snakeTail) {
 		current := snakeTail
 		for current.Parent != nil {
-			grid.Grid[current.Y][current.X] = 1
+			game.Grid[current.Y][current.X] = 1
 			current = current.Parent
 		}
-		grid.Grid[current.Y][current.X] = 1
-		snakeAte := current.X == grid.foodX && current.Y == grid.foodY
+		game.Grid[current.Y][current.X] = 1
+		snakeAte := current.X == game.foodX && current.Y == game.foodY
 		if snakeAte {
-			grid.HasFood = false
+			game.HasFood = false
 			snakeTail.Growing = true
-			grid.addFood()
-			grid.addScore()
-			grid.gameSpeed -= time.Millisecond * 10
+			game.addFood()
+			game.addScore()
+			game.gameSpeed -= time.Millisecond * 10
 		}
 	} else {
-		grid.setGameOver()
+		game.setGameOver()
 	}
 }
 
-func (grid *Grid) setGameOver() {
-	grid.GameOver = true
-	for row := 0; row < grid.height; row++ {
-		for col := 0; col < grid.width; col++ {
-			grid.Grid[row][col] = -1
+func (game *Game) StorePreviousState() {
+	game.previousGrid = make([][]int, len(game.Grid))
+	for i := range game.Grid {
+		game.previousGrid[i] = make([]int, len(game.Grid[i]))
+		copy(game.previousGrid[i], game.Grid[i])
+	}
+}
+
+func (game *Game) setGameOver() {
+	for _, i := range game.Grid {
+		for _, j := range i {
+			print(j)
+		}
+		print("\n")
+	}
+	game.GameOver = true
+	game.Grid = game.previousGrid
+	for row := 0; row < game.height; row++ {
+		for col := 0; col < game.width; col++ {
+			if game.Grid[row][col] != 1 {
+				game.Grid[row][col] = -1
+			}
 		}
 	}
 }
 
-func (grid *Grid) SnakeIsAlive(tail *snake.Snake) bool {
+func (game *Game) SnakeIsAlive(tail *snake.Snake) bool {
 	head := tail.FindHead()
-	println(head.X, head.Y)
-	if head.Y < 0 || head.Y >= len(grid.Grid) || head.X < 0 || head.X >= len(grid.Grid[0]) {
+	if head.Y < 0 || head.Y >= len(game.Grid) || head.X < 0 || head.X >= len(game.Grid[0]) {
 		return false
 	}
 	current := tail
@@ -88,27 +109,45 @@ func (grid *Grid) SnakeIsAlive(tail *snake.Snake) bool {
 	return true
 }
 
-func (grid *Grid) addFood() {
+func (game *Game) addFood() {
 	rand.Seed(time.Now().UnixNano())
 	validPosition := false
 	for !validPosition {
-		randomRow := rand.Intn(len(grid.Grid))
-		randomCol := rand.Intn(len(grid.Grid[0]))
-		if grid.Grid[randomRow][randomCol] == 0 {
+		randomRow := rand.Intn(len(game.Grid))
+		randomCol := rand.Intn(len(game.Grid[0]))
+		if game.Grid[randomRow][randomCol] == 0 {
 			validPosition = true
-			grid.Grid[randomRow][randomCol] = 2
-			grid.foodX = randomCol
-			grid.foodY = randomRow
+			game.Grid[randomRow][randomCol] = 2
+			game.foodX = randomCol
+			game.foodY = randomRow
 		}
 	}
-	grid.HasFood = true
+	game.HasFood = true
 }
 
-func (grid *Grid) addScore() {
-	multiplier := (time.Second - grid.gameSpeed) * 10
-	grid.Score += int(10 * multiplier.Seconds())
+func (game *Game) addScore() {
+	multiplier := (time.Second - game.gameSpeed) * 10
+	game.Score += int(10 * multiplier.Seconds())
 }
 
-func (grid *Grid) FoodPos() (int, int, bool) {
-	return grid.foodX, grid.foodY, grid.HasFood
+func (game *Game) Play(tail *snake.Snake, conn *websocket.Conn) {
+	for !game.GameOver {
+		game.StorePreviousState()
+		game.Wipe()
+		tail = tail.Move(game.Direction)
+		game.DrawSnake(tail)
+		jsonData, _ := json.Marshal(game)
+		conn.WriteMessage(1, jsonData)
+	}
+}
+
+func ComposeGameAndSnake() (*snake.Snake, Game) {
+	//returns tail, grid for a game of snake
+	tail := snake.Snake{X: 2, Y: 5, Nodes: 3, Tick: 3, Growing: false}
+	body := snake.Snake{X: 3, Y: 5, Nodes: 3, Tick: 3, Growing: false}
+	head := snake.Snake{X: 4, Y: 5, Nodes: 3, Tick: 3, Growing: false}
+	tail.Parent = &body
+	body.Parent = &head
+	gameInstance := NewGame(10, 10)
+	return &tail, gameInstance
 }
