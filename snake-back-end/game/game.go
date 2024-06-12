@@ -104,7 +104,6 @@ func (game *Game) SnakeIsAlive(tail *snake.Snake) bool {
 }
 
 func (game *Game) addFood() {
-	rand.Seed(time.Now().UnixNano())
 	validPosition := false
 	for !validPosition {
 		randomRow := rand.Intn(len(game.Grid))
