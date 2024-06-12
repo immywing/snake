@@ -8,8 +8,7 @@ const (
 )
 
 type Snake struct {
-	Parent *Snake
-	// Child   *Snake
+	Parent    *Snake
 	X         int
 	Y         int
 	Nodes     int
@@ -19,7 +18,7 @@ type Snake struct {
 }
 
 func (snake *Snake) Move(direction int) *Snake {
-	returnPtr := snake.grow()
+	tail := snake.grow()
 	current := snake
 	for current.Parent != nil {
 		current.X = current.Parent.X
@@ -28,7 +27,7 @@ func (snake *Snake) Move(direction int) *Snake {
 	}
 	current.setDirection(direction)
 	current.setHeadCoordinate()
-	return returnPtr
+	return tail
 }
 
 func (snake *Snake) setDirection(direction int) {

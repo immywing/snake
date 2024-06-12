@@ -22,8 +22,8 @@ func TestSnakeIsAliveWithValidPositions(t *testing.T) {
 
 func TestSnakeIsAliveWhenOutOfArrayIndex(t *testing.T) {
 	tail := snake.Snake{X: 0, Y: 0, Nodes: 3, Tick: 3, Growing: false}
-	body := snake.Snake{X: 1, Y: 0, Nodes: 3, Tick: 3, Growing: false}  //, Child: &tail}
-	head := snake.Snake{X: 1, Y: -1, Nodes: 3, Tick: 3, Growing: false} //, Child: &body}
+	body := snake.Snake{X: 1, Y: 0, Nodes: 3, Tick: 3, Growing: false}
+	head := snake.Snake{X: 1, Y: -1, Nodes: 3, Tick: 3, Growing: false}
 	tail.Parent = &body
 	body.Parent = &head
 	grid := game.NewGame(10, 10)
@@ -36,8 +36,8 @@ func TestSnakeIsAliveWhenOutOfArrayIndex(t *testing.T) {
 
 func TestSnakeIsAliveWhenPtrsHaveSameCoordinates(t *testing.T) {
 	tail := snake.Snake{X: 0, Y: 0, Nodes: 3, Tick: 3, Growing: false}
-	body := snake.Snake{X: 1, Y: 0, Nodes: 3, Tick: 3, Growing: false} //, Child: &tail}
-	head := snake.Snake{X: 1, Y: 0, Nodes: 3, Tick: 3, Growing: false} //, Child: &body}
+	body := snake.Snake{X: 1, Y: 0, Nodes: 3, Tick: 3, Growing: false}
+	head := snake.Snake{X: 1, Y: 0, Nodes: 3, Tick: 3, Growing: false}
 	tail.Parent = &body
 	body.Parent = &head
 	grid := game.NewGame(10, 10)
@@ -50,8 +50,8 @@ func TestSnakeIsAliveWhenPtrsHaveSameCoordinates(t *testing.T) {
 
 func TestSnakeIsAliveWhenPtrsHaveSameCoordinatesAndOutOfArray(t *testing.T) {
 	tail := snake.Snake{X: 0, Y: 0, Nodes: 3, Tick: 3, Growing: false}
-	body := snake.Snake{X: -1, Y: 0, Nodes: 3, Tick: 3, Growing: false} //, Child: &tail}
-	head := snake.Snake{X: -1, Y: 0, Nodes: 3, Tick: 3, Growing: false} //, Child: &body}
+	body := snake.Snake{X: -1, Y: 0, Nodes: 3, Tick: 3, Growing: false}
+	head := snake.Snake{X: -1, Y: 0, Nodes: 3, Tick: 3, Growing: false}
 	tail.Parent = &body
 	body.Parent = &head
 	grid := game.NewGame(10, 10)

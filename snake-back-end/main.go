@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	"strconv"
 
 	"snakeGame/game"
 	"snakeGame/snake"
@@ -35,8 +34,7 @@ func snakeInputSocket(writer http.ResponseWriter, request *http.Request) {
 		if err != nil {
 			log.Fatal("msg received error", err)
 		}
-		m := string(message)
-		dir, err := strconv.Atoi(m)
+		dir := int(message[0] - '0')
 		if err == nil {
 			snakeGame.Direction = dir
 		}
