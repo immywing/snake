@@ -55,5 +55,3 @@ The game is controllowed with `W`   `A`   `S`   `D` for directional inputs.
 ### Known issues
 
 1. Directional inputs from a player in quick succession can allow the player to turn the snake back on itself causing a game over state.
-
-1. Game over states that occur when the snake collides with a wall currently cause an error on the backend server due to an index out of range error on the array.
